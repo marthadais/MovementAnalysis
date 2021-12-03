@@ -94,10 +94,10 @@ def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=N
         all_stats = pd.concat([all_stats, sog_stats], axis=0)
     all_stats.to_csv(f'{folder}/{measure}_stats.csv')
 
-    for index in range(24):
+    for index in range(12):
         row1 = all_stats.iloc[index,:]
-        row2 = all_stats.iloc[index+24,:]
-        row3 = all_stats.iloc[index+48,:]
+        row2 = all_stats.iloc[index+12,:]
+        row3 = all_stats.iloc[index+24,:]
         lbl = row1['label']
         lbl = lbl.replace('_', ',')
         lbl2 = row2['label']
