@@ -49,41 +49,53 @@ def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=N
     if measure3 is not None:
         print(f'{pd.concat([x2.mean(), x2.std()], axis=1)}')
     # print(aic1.mean())
-    if measure2 is None:
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15, 10))
-    else:
-        if measure3 is None:
-            fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(15, 10))
-        else:
-            fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(15, 10))
-        ax = axes[0]
 
-    if limit is not None:
-        ax.set_ylim([limit[0], limit[1]])
+    # Plot
+    col_names = [i.replace('_', ',') for i in x.columns]
 
-    ax.title.set_text('Latitute')
-    ax.set_xticklabels(x.columns)
-    # bp1 = x.boxplot(ax=axes[0])
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 4))
     bp1 = ax.boxplot(x)
-    if measure2 is not None:
-        if limit is not None:
-            axes[1].set_ylim([limit[0], limit[1]])
-        axes[1].title.set_text('Longitude')
-        axes[1].set_xticklabels(x.columns)
-        # bp2 = x1.boxplot(ax=axes[1])
-        bp2 = axes[1].boxplot(x1)
-    if measure3 is not None:
-        if limit is not None:
-            axes[2].set_ylim([limit[0], limit[1]])
-        axes[2].title.set_text('SOG')
-        axes[2].set_xticklabels(x.columns)
-        # bp2 = x1.boxplot(ax=axes[1])
-        bp3 = axes[2].boxplot(x2)
 
-    plt.tight_layout()
-    # plt.show()
-    plt.savefig(f'{folder}/features_arima_{measure}.png', bbox_inches='tight')
+    # change the fontsize of the xtick and ytick labels and axes
+    ax.set_ylim([limit[0], limit[1]])
+    # ax.title.set_text('Latitute')
+    # ax.title.set_size(13)
+    ax.set_xticklabels(col_names, rotation=45, fontsize=15)
+    plt.yticks(fontsize=15)
+    ax.set_ylabel('MSE', fontsize=15)
+
+    plt.savefig(f'{folder}/features_arima_latitude_{measure}.png', bbox_inches='tight')
     plt.close()
+
+    if measure2 is not None:
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 4))
+        bp2 = ax.boxplot(x1)
+
+        # change the fontsize of the xtick and ytick labels and axes
+        ax.set_ylim([limit[0], limit[1]])
+        # ax.title.set_text('Longitude')
+        # ax.title.set_size(13)
+        ax.set_xticklabels(col_names, rotation=45, fontsize=15)
+        plt.yticks(fontsize=15)
+        ax.set_ylabel('MSE', fontsize=15)
+
+        plt.savefig(f'{folder}/features_arima_longitude_{measure}.png', bbox_inches='tight')
+        plt.close()
+
+    if measure3 is not None:
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 4))
+        bp3 = ax.boxplot(x2)
+
+        # change the fontsize of the xtick and ytick labels and axes
+        ax.set_ylim([limit[0], limit[1]])
+        # ax.title.set_text('Longitude')
+        # ax.title.set_size(13)
+        ax.set_xticklabels(col_names, rotation=45, fontsize=15)
+        plt.yticks(fontsize=15)
+        ax.set_ylabel('MSE', fontsize=15)
+
+        plt.savefig(f'{folder}/features_arima_sog_{measure}.png', bbox_inches='tight')
+        plt.close()
 
     all_stats = get_box_plot_data(x.columns, bp1, x)
     if measure2 is not None:
@@ -93,24 +105,26 @@ def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=N
         sog_stats = get_box_plot_data(x.columns, bp3, x2)
         all_stats = pd.concat([all_stats, sog_stats], axis=0)
     all_stats.to_csv(f'{folder}/{measure}_stats.csv')
+    decimals = 4
 
-    for index in range(12):
+    for index in range(24):
         row1 = all_stats.iloc[index,:]
-        row2 = all_stats.iloc[index+12,:]
-        row3 = all_stats.iloc[index+24,:]
+        row2 = all_stats.iloc[index+24,:]
+        row3 = all_stats.iloc[index+48,:]
         lbl = row1['label']
         lbl = lbl.replace('_', ',')
         lbl2 = row2['label']
         lbl2 = lbl2.replace('_', ',')
         lbl3 = row3['label']
         lbl3 = lbl3.replace('_', ',')
-        avg = round(row1['average'], 2)
-        st = round(row1['std'], 2)
-        avg2 = round(row2['average'], 2)
-        st2 = round(row2['std'], 2)
-        avg3 = round(row3['average'], 2)
-        st3 = round(row3['std'], 2)
-        print(f'$({lbl})$ & ${avg} \pm {st}$ & ${lbl2}$ & ${avg2} \pm {st2}$ & ${lbl3}$ & ${avg3} \pm {st3}$ \\\\')
+        avg = round(row1['average'], decimals)
+        st = round(row1['std'], decimals)
+        avg2 = round(row2['average'], decimals)
+        st2 = round(row2['std'], decimals)
+        avg3 = round(row3['average'], decimals)
+        st3 = round(row3['std'], decimals)
+        # print(f'$({lbl})$ & ${avg} \pm {st}$ & ${lbl2}$ & ${avg2} \pm {st2}$ & ${lbl3}$ & ${avg3} \pm {st3}$ \\\\')
+        print(f'$({lbl})$ & ${avg} \pm {st}$ & ${avg2} \pm {st2}$ & ${avg3} \pm {st3}$ \\\\')
 
 
 def get_box_plot_data(labels, bp, data):
@@ -146,8 +160,11 @@ vessel_type = [30, 1001, 1002]
 start_day = datetime(2020, 4, 1)
 end_day = datetime(2020, 4, 30)
 
-dataset = Trajectories(dataset=dataset_name, n_samples=n_samples, vessel_type=vessel_type, time_period=(start_day, end_day))
-main_folder = f'./results/{dataset_name}/type_{vessel_type}/period_{start_day.date()}_to_{end_day.date()}/arima_analysis_sog_{n_samples}'
+# region_limits = [30, 41, -80, -65]
+region_limits = None
+
+dataset = Trajectories(dataset=dataset_name, n_samples=n_samples, vessel_type=vessel_type, time_period=(start_day, end_day), region=region_limits)
+main_folder = f'./results/{dataset_name}/type_{vessel_type}/period_{start_day.date()}_to_{end_day.date()}-{region_limits}/arima_analysis_sog_{n_samples}'
 
 metric = 'arima'
 dim_set = ['lat', 'lon', 'sog']
@@ -156,8 +173,8 @@ curr_config = {}
 silhouette = pd.DataFrame()
 count = 0
 for ar_i in [0, 1]:
-    for ar_p in [1, 2]:
-        for ar_q in [0, 1, 2]:
+    for ar_p in [1, 2, 3]:
+        for ar_q in [0, 1, 2, 3]:
             print(f'{ar_p}_{ar_i}_{ar_q}')
             folder = f'{main_folder}/{metric}_{ar_p}_{ar_i}_{ar_q}/'
             features_path = f'{folder}/features_distance.p'
@@ -171,9 +188,7 @@ for ar_i in [0, 1]:
 
 
 col_set = ['AIC', 'MSE']
-col_lim_upper = [2e4, 15]
-col_lim_lower = [-8e4, -1]
 
 folder = f'{main_folder}/'
-boxplot_measure(curr_config, 'MSE', measure2='MSE', measure3='MSE', limit=(-1, 20), folder=folder)
+boxplot_measure(curr_config, 'MSE', measure2='MSE', measure3='MSE', limit=(-0.01, 0.1), folder=folder)
 

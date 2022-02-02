@@ -41,26 +41,41 @@ def sc_bar_plt(data, folder='./results_data/'):
     :param folder: the path were is the clustering results to save the statistics
     """
     lower_limit = data.loc[0, 'threshold_std']
+    avg_limit = data['silhouette'].mean()
     data = data.sort_values([data.columns[1], data.columns[0]])
     data = data.reset_index()[[data.columns[0], data.columns[1]]]
 
+    color_order = ['red', 'orange', 'blue', 'green', 'yellow', 'pink', 'violet', 'maroon', 'wheat', 'yellowgreen',
+                   'lime', 'indigo', 'azure', 'olive', 'cyan', 'beige', 'skyblue', 'lavender', 'gold', 'fuchsia',
+                   'purple']
+
     pad = 0
+    i = 1
     n_clusters = len(np.unique(data.iloc[:, 1]))
     fig = plt.figure(figsize=(10, 15))
     ax = fig.add_subplot(111)
     for c in range(n_clusters):
+        if np.unique(data.iloc[:, 1])[c] == -1:
+            i = 0
+        if n_clusters <= 20:
+            curr_c = color_order[i]
+        else:
+            curr_c = cm.tab20(float(c) / n_clusters)
         sample = data[data.iloc[:, 1] == np.unique(data.iloc[:, 1])[c]]
-        color = cm.tab20(float(c) / n_clusters)
-        ax.barh(range(pad, len(sample.iloc[:, 0])+pad), sample.iloc[:, 0], label=f'{np.unique(data.iloc[:, 1])[c]}', color=color)
+        ax.barh(range(pad, len(sample.iloc[:, 0])+pad), sample.iloc[:, 0], label=f'{np.unique(data.iloc[:, 1])[c]}', color=curr_c)
         pad = pad + len(sample.iloc[:, 0]) + 2
+        i = i+1
 
     ax.plot([lower_limit, lower_limit], [0, pad-1], "--", label=f'lower_limit', color='red')
-    ax.set_ylabel('Instances')
-    ax.set_xlabel('Silhouette Score')
-    ax.set_title(f'Individual Silhouette Score for {n_clusters} groups')
+    ax.plot([avg_limit, avg_limit], [0, pad-1], "--", label=f'average', color='black')
+    ax.set_ylabel('Instances', fontsize=25)
+    ax.set_xlabel('Silhouette Score', fontsize=25)
+    plt.yticks(fontsize=25)
+    plt.xticks(fontsize=25)
+    # ax.set_title(f'Individual Silhouette Score for {n_clusters} groups')
     if n_clusters < 20:
-        plt.legend()
-    plt.tight_layout()
+        plt.legend(fontsize=25)
+    # plt.tight_layout()
     plt.savefig(f'{folder}/silhoutte.png', bbox_inches='tight')
     plt.close()
 
@@ -103,8 +118,8 @@ def statistics_clusters(dataset, col='Clusters', folder='./results_data/'):
     """
     N = dataset[col].unique()
 
-    trajectory_df = dataset.loc[:, ['trajectory', 'scores-3std', 'Clusters']]
-    trajectory_df.drop_duplicates(inplace=True)
+    trajectory_df = dataset.loc[:, ['trajectory', 'scores-3std', 'Clusters', 'silhouette']]
+    trajectory_df.drop_duplicates('trajectory', inplace=True)
 
     avg = dataset[['lat', 'lon']].mean(axis=0)
     std = dataset[['lat', 'lon']].std(axis=0)
@@ -112,7 +127,7 @@ def statistics_clusters(dataset, col='Clusters', folder='./results_data/'):
     for i in N:
         sample = dataset[dataset[col] == i]
         sample_trajectory = trajectory_df[trajectory_df[col] == i]
-        row = [i, sample['Cl_Silhouette'].unique()[0], sample['silhouette'].mean(), sample['silhouette'].std(), sample['threshold_std'].iloc[0], (sample_trajectory['scores-3std'] == 1).sum(), (sample_trajectory['scores-3std'] == -1).sum(),
+        row = [i, sample['Cl_Silhouette'].unique()[0], sample_trajectory['silhouette'].mean(), sample['silhouette'].std(), sample['threshold_std'].iloc[0], (sample_trajectory['scores-3std'] == 1).sum(), (sample_trajectory['scores-3std'] == -1).sum(),
                sample['lat'].mean(), sample['lat'].std(), sample['lon'].mean(), sample['lon'].std(), len(sample_trajectory), len(sample['mmsi'].unique()),
                len(np.unique(sample['vessel_type'])), np.unique(sample['vessel_type']),
                len(sample['flag'].unique()), list(np.unique(sample['flag']))]

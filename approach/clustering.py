@@ -107,8 +107,16 @@ def plot_dendrogram(dm, folder):
 
     # Plot the corresponding dendrogram
     plt.figure()
-    dendrogram(linkage_matrix, truncate_mode='level', p=10)
-    plt.savefig(f'{folder}/dendogram.png', bbox_inches='tight')
+    dendrogram(linkage_matrix, truncate_mode='lastp', p=30, labels=np.repeat('(1)', linkage_matrix.shape[0]+1), leaf_rotation=75, leaf_font_size=25)
+
+    # change the fontsize of the xtick and ytick labels and axes
+    plt.rc('xtick', labelsize=15)
+    plt.rc('ytick', labelsize=15)
+    plt.rc('axes', labelsize=15)
+
+    plt.ylabel('Distance')
+    plt.xlabel('Number of instances in each cluster.')
+    plt.savefig(f'{folder}/dendrogram.png', bbox_inches='tight')
     plt.close()
 
 
@@ -241,6 +249,11 @@ class Clustering:
         distances = np.sort(distances.ravel())
         pickle.dump(distances, open(f'{self.path}/sorted_distances.p', 'wb'))
 
+        # change the fontsize of the xtick and ytick labels and axes
+        plt.rc('xtick', labelsize=15)
+        plt.rc('ytick', labelsize=15)
+        plt.rc('axes', labelsize=15)
+
         plt.plot(range(0, len(distances)), distances, marker='o')
         plt.xlabel('Number of instances')
         plt.ylabel('Distance')
@@ -276,10 +289,15 @@ class Clustering:
         self._k = int(np.where(sc == sc.max())[0][0])
 
         if self.path is not None:
+            # change the fontsize of the xtick and ytick labels and axes
+            plt.rc('xtick', labelsize=15)
+            plt.rc('ytick', labelsize=15)
+            plt.rc('axes', labelsize=15)
+
             plt.plot(range(K_min, K+1), sc[K_min:], marker='o')
-            plt.xlabel('number of clusters')
-            plt.ylabel('Silhouette')
-            plt.title(f'Silhouette Scores for {self.cluster_algorithm}')
+            plt.xlabel('Number of clusters')
+            plt.ylabel('Silhouette score')
+            # plt.title(f'Silhouette Scores for {self.cluster_algorithm}')
             plt.savefig(f'{self.path}/{self.cluster_algorithm}_{self._linkage}_silhoutte_line_graph.png', bbox_inches='tight')
             plt.close()
 

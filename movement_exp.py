@@ -21,7 +21,11 @@ def dist_matrix_plot(features, dm_path, path='./results/'):
 
     for f in dm_path.keys():
         dm = pickle.load(open(dm_path[f], 'rb'))
-        plt.imshow(dm, cmap='viridis', interpolation='nearest')
+        # change the fontsize of the xtick and ytick labels and axes
+        plt.rc('xtick', labelsize=15)
+        plt.rc('ytick', labelsize=15)
+        plt.rc('axes', labelsize=15)
+        plt.imshow(dm, cmap='Blues_r', interpolation='nearest')
         plt.xlabel('Number of instances')
         plt.ylabel('Number of instances')
         plt.colorbar()
@@ -29,7 +33,7 @@ def dist_matrix_plot(features, dm_path, path='./results/'):
         plt.close()
 
         dm_log = np.log(dm + 1e-10)
-        plt.imshow(dm_log, cmap='viridis', interpolation='nearest')
+        plt.imshow(dm_log, cmap='Blues_r', interpolation='nearest')
         plt.xlabel('Number of instances')
         plt.ylabel('Number of instances')
         plt.colorbar()
@@ -76,18 +80,27 @@ path_dist_dict = {}
 print('Starting all Experiments...')
 n_samples = None
 ## Fishing
+# https://coast.noaa.gov/data/marinecadastre/ais/VesselTypeCodes2018.pdf
 vessel_type = [30, 1001, 1002]
+# Tug Tow
+# vessel_type = [31, 32]
+## cargo and fishing
+# vessel_type = [30, 70]
+
 ## Dates
 start_day = datetime(2020, 4, 1)
 end_day = datetime(2020, 4, 30)
 # Attributes
 dim_set = ['lat', 'lon']
+#lat, lat, lon, lon
+# region_limits = [30, 41, -80, -65]
+region_limits = None
 
 ### Creating dataset
-dataset = Trajectories(n_samples=n_samples, vessel_type=vessel_type, time_period=(start_day, end_day))
-main_folder = f'./results/DCAIS/type_{vessel_type}/period_{start_day.date()}_to_{end_day.date()}/mov-{n_samples}-'
+dataset = Trajectories(n_samples=n_samples, vessel_type=vessel_type, time_period=(start_day, end_day), region=region_limits)
+main_folder = f'./results/DCAIS/type_{vessel_type}/period_{start_day.date()}_to_{end_day.date()}-{region_limits}/mov-{dim_set}-{n_samples}-'
 
-#### Extracting features
+### Extracting features
 print('Running OU process...')
 metric = 'ou'
 folder = f'{main_folder}{metric}/'
@@ -100,12 +113,12 @@ if not os.path.exists(features_path):
     dataset_dict = dataset.pandas_to_dict()
     features = Models(dataset=dataset_dict, features_opt=metric, dim_set=dim_set, folder=folder)
 
-path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric)
+path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric, eps=0.005, k1=2, k2=3)
 
 print('Running ARIMA process...')
 ar_arima = 1
 i_arima = 0
-ma_arima = 2
+ma_arima = 3
 metric = 'arima'
 folder = f'{main_folder}{metric}-{ar_arima}-{i_arima}-{ma_arima}/'
 
@@ -117,7 +130,7 @@ if not os.path.exists(features_path):
     dataset_dict = dataset.pandas_to_dict()
     features = Models(dataset=dataset_dict, features_opt=metric, dim_set=dim_set, ar_prm=ar_arima, i_prm=i_arima, ma_prm=ma_arima, folder=folder)
 
-path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric)
+path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric, eps=0.1, k1=2, k2=3)
 
 print(path_results_dict)
 print(path_results_dict.keys())

@@ -7,6 +7,8 @@ from zipfile import ZipFile
 from urllib.request import urlopen
 from datetime import timedelta
 import warnings
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def missing_values_treatment(x):
@@ -92,6 +94,7 @@ def create_dataset_noaa(path, time_period, vt=None):
     """
     columns_read = ['MMSI', 'BaseDateTime', 'LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']
     dataset = pd.DataFrame()
+    mmsis = np.array([])
     for curr_date in date_range(time_period[0], time_period[1]+timedelta(days=1)):
         print(f'\treading day {curr_date}')
         url = urlopen(f"https://coast.noaa.gov/htdata/CMSP/AISDataHandler/2020/AIS_2020_{curr_date.month:02d}_{curr_date.day:02d}.zip")
@@ -101,7 +104,8 @@ def create_dataset_noaa(path, time_period, vt=None):
         if vt is not None:
             # chunk2 = chunk[chunk['VesselType'] == vt]
             chunk2 = chunk[chunk['VesselType'].isin(vt)]
-            mmsis = chunk2['MMSI'].unique()
+            mmsis = np.concatenate((mmsis, chunk2['MMSI'].unique()))
+            mmsis = np.unique(mmsis)
             chunk = chunk[chunk['MMSI'].isin(mmsis)]
         dataset = pd.concat([dataset, chunk], ignore_index=True)
         zipfile.close()
@@ -121,7 +125,7 @@ class Trajectories:
     The dataset corresponds to a specific vessel type for a particular period of time.
     It reads, clean and aggregate information of the vessels.
     """
-    def __init__(self, n_samples=None, vessel_type=None, time_period=None, min_obs=10, **args):
+    def __init__(self, n_samples=None, vessel_type=None, time_period=None, min_obs=100, **args):
         """
         It reads the noaa dataset and produce a csv file with the vessels information of a specific type.
         Such vessel type provide the most trips information.
@@ -206,6 +210,7 @@ class Trajectories:
         new_dataset = pd.DataFrame()
         # create trajectories
         count_mmsi = 0
+        count_traj = 0
         for id in ids:
             print(f'\t Cleaning trajectory {count_mmsi} of {len(ids)}')
             trajectory = dataset[dataset['mmsi'] == id]
@@ -220,7 +225,7 @@ class Trajectories:
             # if is inside the selected region and contains enough observations
             if (trajectory.shape[0] >= self.min_obs) and isin_region:
                 # include sub trajectory id and total time
-                aux_col = pd.DataFrame({'trajectory': np.repeat(count_mmsi, trajectory.shape[0])})
+                aux_col = pd.DataFrame({'trajectory': np.repeat(count_traj, trajectory.shape[0])})
                 trajectory.reset_index(drop=True, inplace=True)
                 trajectory = pd.concat([aux_col, trajectory], axis=1)
 
@@ -235,7 +240,8 @@ class Trajectories:
 
                 # add trajectory
                 new_dataset = pd.concat([new_dataset, trajectory], axis=0, ignore_index=True)
-                count_mmsi = count_mmsi + 1
+                count_traj = count_traj + 1
+            count_mmsi = count_mmsi + 1
 
         self._nsamples = count_mmsi
         new_dataset.to_csv(self.preprocessed_path, index=False)
