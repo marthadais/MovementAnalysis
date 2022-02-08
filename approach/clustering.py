@@ -107,7 +107,7 @@ def plot_dendrogram(dm, folder):
 
     # Plot the corresponding dendrogram
     plt.figure()
-    dendrogram(linkage_matrix, truncate_mode='lastp', p=30, labels=np.repeat('(1)', linkage_matrix.shape[0]+1), leaf_rotation=75, leaf_font_size=25)
+    dendrogram(linkage_matrix, truncate_mode='lastp', p=25, labels=np.repeat('(1)', linkage_matrix.shape[0]+1), leaf_rotation=90, leaf_font_size=14)
 
     # change the fontsize of the xtick and ytick labels and axes
     plt.rc('xtick', labelsize=15)

@@ -24,10 +24,9 @@ def dist_matrix_plot(features, dm_path, path='./results/'):
         # change the fontsize of the xtick and ytick labels and axes
         plt.rc('xtick', labelsize=15)
         plt.rc('ytick', labelsize=15)
-        plt.rc('axes', labelsize=15)
         plt.imshow(dm, cmap='Blues_r', interpolation='nearest')
-        plt.xlabel('Number of instances')
-        plt.ylabel('Number of instances')
+        plt.xlabel('Number of instances', fontsize=15)
+        plt.ylabel('Number of instances', fontsize=15)
         plt.colorbar()
         plt.savefig(f'{path}features/{f}_dist_matrix.png', bbox_inches='tight')
         plt.close()
@@ -46,7 +45,7 @@ def dist_matrix_plot(features, dm_path, path='./results/'):
 
 
 def all_clustering(dataset, features_path, folder, path_results_dict, metric, eps=None, k1=None, k2=None, norm_dist=False):
-    ### Clustering
+    ## Clustering
     if eps is None:
         result = Clustering(ais_data_path=dataset.preprocessed_path, distance_matrix_path=features_path,
                         cluster_algorithm='dbscan', folder=folder)
@@ -113,7 +112,7 @@ if not os.path.exists(features_path):
     dataset_dict = dataset.pandas_to_dict()
     features = Models(dataset=dataset_dict, features_opt=metric, dim_set=dim_set, folder=folder)
 
-path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric, eps=0.005, k1=2, k2=3)
+path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric, eps=0.005, k1=15, k2=3)
 
 print('Running ARIMA process...')
 ar_arima = 1
@@ -130,7 +129,7 @@ if not os.path.exists(features_path):
     dataset_dict = dataset.pandas_to_dict()
     features = Models(dataset=dataset_dict, features_opt=metric, dim_set=dim_set, ar_prm=ar_arima, i_prm=i_arima, ma_prm=ma_arima, folder=folder)
 
-path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric, eps=0.1, k1=2, k2=3)
+path_results_dict = all_clustering(dataset, distance_path, folder, path_results_dict, metric=metric, eps=0.1, k1=15, k2=3)
 
 print(path_results_dict)
 print(path_results_dict.keys())
