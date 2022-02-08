@@ -66,7 +66,3 @@ six==1.16.0\
 statsmodels==0.13.1\
 threadpoolctl==3.0.0\
 tomli==1.2.2
-
-## Reference
-
-[1]
