@@ -4,7 +4,7 @@ import statsmodels.api as sm
 from scipy.spatial.distance import pdist, squareform
 import os, pickle
 from joblib import Parallel, delayed
-import projection as pjt
+from analysis import projection as pjt
 from approach import OU_process as ou
 from sklearn.preprocessing import MinMaxScaler
 

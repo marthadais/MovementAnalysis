@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pandas as pd
-import projection as pjt
+from analysis import projection as pjt
 
 
 def barplot(data, xlabel='Dates', ylabel='Frequency', file='./results_data/frequency_bar.png', **args):
