@@ -3,6 +3,7 @@
 An analysis on the behavior of fishing vessels in order to detect patterns and outliers/anomalies.
 This analysis utilizes ARIMA and OU process to model the trajectories, producing coefficients that represent the vessel movement.
 Next, a clustering analysis is performed to explore patterns in the movement of the fishing vessels.
+This source code is related to the work in [[1]](https://www.tandfonline.com/doi/pdf/10.1080/15481603.2022.2118437). Thus, if you are using this code please cite [[1]](https://www.tandfonline.com/doi/pdf/10.1080/15481603.2022.2118437).
 
 ## Usage Example
 
@@ -66,3 +67,7 @@ six==1.16.0\
 statsmodels==0.13.1\
 threadpoolctl==3.0.0\
 tomli==1.2.2
+
+## Reference
+
+[1] Ferreira, M. D., Campbell, J. N., & Matwin, S. (2022). A novel machine learning approach to analyzing geospatial vessel patterns using AIS data. GIScience & Remote Sensing, 59(1), 1473-1490.
