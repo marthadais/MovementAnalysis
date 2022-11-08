@@ -1,3 +1,9 @@
+# This file is part of MovementAnalysis.
+#
+# [1] Ferreira, M. D., Campbell, J. N., & Matwin, S. (2022).
+# A novel machine learning approach to analyzing geospatial vessel patterns using AIS data.
+# GIScience & Remote Sensing, 59(1), 1473-1490.
+#
 import os, random
 import pandas as pd
 import numpy as np
@@ -14,6 +20,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 def missing_values_treatment(x):
     """
     It removes observations with invalid SOG and COG.
+
     :param x: the dataset
     :return: the dataset without invalid samples
     """
@@ -34,6 +41,7 @@ def missing_values_treatment(x):
 def removing_invalid_samples(x, min_obs=None, subset=None):
     """
     It round the values to 4 decimals, removes duplicates, and removes samples with few observations.
+
     :param x: the dataset
     :return: the dataset with country attribute
     """
@@ -55,7 +63,8 @@ def removing_invalid_samples(x, min_obs=None, subset=None):
 
 def include_country(x):
     """
-    It includes the country based on the MMSI
+    It includes the country based on the MMSI.
+
     :param x: the dataset
     :return: the dataset with country attribute
     """
@@ -72,10 +81,11 @@ def include_country(x):
     return x
 
 
-### Reading and filtering dataset ###
+# Reading and filtering dataset
 def date_range(start_date, end_date):
     """
-    It provides ranges of date period to conduct the loop
+    It provides ranges of date period to conduct the loop.
+
     :param start_date: initial date period to get the dataset
     :param end_date: final date period to get the dataset
     :return: iterative data
@@ -118,7 +128,7 @@ def create_dataset_noaa(path, time_period, vt=None):
 
     dataset.to_csv(path, index=False)
 
-### Class to produce the preprocessed dataset ###
+# Class to produce the preprocessed dataset
 class Trajectories:
     """
     It reads the DCAIS dataset and produce a csv file with the preprocessed vessels information.
@@ -129,6 +139,7 @@ class Trajectories:
         """
         It reads the noaa dataset and produce a csv file with the vessels information of a specific type.
         Such vessel type provide the most trips information.
+
         :param n_samples: number of MMSI to be processed, none if you request all MMSIs (Default: None)
         :param vessel_typet: vessel type
         :param time_period: period of time to read the dataset

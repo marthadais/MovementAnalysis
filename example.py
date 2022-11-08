@@ -1,10 +1,16 @@
+# This file is part of MovementAnalysis.
+#
+# [1] Ferreira, M. D., Campbell, J. N., & Matwin, S. (2022).
+# A novel machine learning approach to analyzing geospatial vessel patterns using AIS data.
+# GIScience & Remote Sensing, 59(1), 1473-1490.
+#
 from preprocessing.clean_trajectories import Trajectories
 from approach.ar_models import Models
 from approach.clustering import Clustering
 from datetime import datetime
 
 # Number of vessels
-n_samples = 30
+n_samples = None
 # Fishing type
 vessel_type = [30, 1001, 1002]
 # Time period

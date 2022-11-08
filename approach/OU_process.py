@@ -1,15 +1,22 @@
+# This file is part of MovementAnalysis.
+#
+# [1] Ferreira, M. D., Campbell, J. N., & Matwin, S. (2022).
+# A novel machine learning approach to analyzing geospatial vessel patterns using AIS data.
+# GIScience & Remote Sensing, 59(1), 1473-1490.
+#
+# Piece of code from: https://github.com/jwergieluk/ou_noise/tree/c5eee685c8a80a079dd32c759df3b97e05ef51ef
+#
 import numpy as np
 import math
 import scipy
 
-def ou_process(t, x, start=None):
-    """ OU (Ornstein-Uhlenbeck) process
-        dX = -A(X-alpha)dt + v dB
-        Maximum-likelihood estimator
-        Piece of code from:
-        https://github.com/jwergieluk/ou_noise/tree/c5eee685c8a80a079dd32c759df3b97e05ef51ef
-    """
 
+def ou_process(t, x, start=None):
+    """
+    OU (Ornstein-Uhlenbeck) process using Maximum-likelihood estimator:
+    dX = -A(X-alpha)dt + v dB
+    Piece of code from: https://github.com/jwergieluk/ou_noise/tree/c5eee685c8a80a079dd32c759df3b97e05ef51ef
+    """
     if start is None:
         v = est_v_quadratic_variation(t, x)
         start = (0.5, np.mean(x), v)

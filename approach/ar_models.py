@@ -1,3 +1,9 @@
+# This file is part of MovementAnalysis.
+#
+# [1] Ferreira, M. D., Campbell, J. N., & Matwin, S. (2022).
+# A novel machine learning approach to analyzing geospatial vessel patterns using AIS data.
+# GIScience & Remote Sensing, 59(1), 1473-1490.
+#
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -11,7 +17,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 def dict_reorder(x):
     """
-    It reorder the dict values
+    It reorder the dict values.
+
     :param x: the data on dict format
     :return: dict ordered
     """
@@ -20,7 +27,8 @@ def dict_reorder(x):
 
 def avg_std_dict_data(x, dim_set):
     """
-    It computes the average and the standard deviation of a dict dataset considering a set of atributes
+    It computes the average and the standard deviation of a dict dataset considering a set of attributes.
+
     :param x: the dataset in dict format
     :param dim_set: a list of the attributes to be computed
     :return: average and standard deviation
@@ -38,7 +46,8 @@ def avg_std_dict_data(x, dim_set):
 
 def normalize(x, dim_set, verbose=True, znorm=True, centralize=False, norm_geo=True):
     """
-    Computes Z-normalization or centralization of a dict dataset for a set of attributes
+    Computes Z-normalization or centralization of a dict dataset for a set of attributes.
+
     :param x: dict dataset
     :param dim_set: set of attributes
     :param verbose: if True, print comments
@@ -81,6 +90,7 @@ class Models:
         """
         It receives the preprocessed DCAIS dataset in dict format.
         It applies the selected model on the trajectories and compute the euclidean distance.
+
         :param dataset: the dataset in dict format
         """
         self.verbose = verbose

@@ -1,3 +1,9 @@
+# This file is part of MovementAnalysis.
+#
+# [1] Ferreira, M. D., Campbell, J. N., & Matwin, S. (2022).
+# A novel machine learning approach to analyzing geospatial vessel patterns using AIS data.
+# GIScience & Remote Sensing, 59(1), 1473-1490.
+#
 from preprocessing.clean_trajectories import Trajectories
 from approach.ar_models import Models
 import os
@@ -7,48 +13,42 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=None):
+def boxplot_measure(data, measure, folder, measure2=None, limit=None):
+    """
+    It plots the box plots for all 24 configurations of latitude and longitude arima models.
+
+    :param data: the measurements of the ARIMA models.
+    :param measure: the selected measure for the first plot (latitude).
+    :param folder: folder to save the images
+    :param measure2: the selected measure for the second plot (longitude).
+    :param limit: limits for y-axis in the plot.
+    """
     x = pd.DataFrame()
     if measure2 is not None:
         x1 = pd.DataFrame()
-        x2 = pd.DataFrame()
     for i in data.keys():
         x = pd.concat([x, data[i][measure]], axis=1)
         if measure2 is not None:
             x1 = pd.concat([x1, curr_config[i][f'{measure}.1']], axis=1)
-        if measure3 is not None:
-            x2 = pd.concat([x2, curr_config[i][f'{measure}.2']], axis=1)
 
     if measure == 'MSE':
         x = np.sqrt(x)
         if measure2 is not None:
             x1 = np.sqrt(x1)
-        if measure3 is not None:
-            x2 = np.sqrt(x2)
 
     x.columns = data.keys()
     x = x.replace([np.inf], np.nan)
-    # x[x >= 140] = np.nan
     x = x.replace([np.nan], x.max().max())
     if measure2 is not None:
         x1.columns = data.keys()
         x1 = x1.replace([np.inf], np.nan)
-        # x1[x1 >= 140] = np.nan
         x1 = x1.replace([np.nan], x1.max().max())
-    if measure3 is not None:
-        x2.columns = data.keys()
-        x2 = x2.replace([np.inf], np.nan)
-        # x1[x1 >= 140] = np.nan
-        x2 = x2.replace([np.nan], x2.max().max())
 
     # fig = plt.figure(figsize=(15, 10))
     print(f'{measure}:')
     print(f'{pd.concat([x.mean(), x.std()], axis=1)}')
     if measure2 is not None:
         print(f'{pd.concat([x1.mean(), x1.std()], axis=1)}')
-    if measure3 is not None:
-        print(f'{pd.concat([x2.mean(), x2.std()], axis=1)}')
-    # print(aic1.mean())
 
     # Plot
     col_names = [i.replace('_', ',') for i in x.columns]
@@ -58,8 +58,6 @@ def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=N
 
     # change the fontsize of the xtick and ytick labels and axes
     ax.set_ylim([limit[0], limit[1]])
-    # ax.title.set_text('Latitute')
-    # ax.title.set_size(13)
     ax.set_xticklabels(col_names, rotation=45, fontsize=15)
     plt.yticks(fontsize=15)
     ax.set_ylabel('MSE', fontsize=15)
@@ -73,8 +71,6 @@ def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=N
 
         # change the fontsize of the xtick and ytick labels and axes
         ax.set_ylim([limit[0], limit[1]])
-        # ax.title.set_text('Longitude')
-        # ax.title.set_size(13)
         ax.set_xticklabels(col_names, rotation=45, fontsize=15)
         plt.yticks(fontsize=15)
         ax.set_ylabel('MSE', fontsize=15)
@@ -82,28 +78,10 @@ def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=N
         plt.savefig(f'{folder}/features_arima_longitude_{measure}.png', bbox_inches='tight')
         plt.close()
 
-    if measure3 is not None:
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 4))
-        bp3 = ax.boxplot(x2)
-
-        # change the fontsize of the xtick and ytick labels and axes
-        ax.set_ylim([limit[0], limit[1]])
-        # ax.title.set_text('Longitude')
-        # ax.title.set_size(13)
-        ax.set_xticklabels(col_names, rotation=45, fontsize=15)
-        plt.yticks(fontsize=15)
-        ax.set_ylabel('MSE', fontsize=15)
-
-        plt.savefig(f'{folder}/features_arima_sog_{measure}.png', bbox_inches='tight')
-        plt.close()
-
     all_stats = get_box_plot_data(x.columns, bp1, x)
     if measure2 is not None:
         lon_stats = get_box_plot_data(x.columns, bp2, x1)
         all_stats = pd.concat([all_stats, lon_stats], axis=0)
-    if measure3 is not None:
-        sog_stats = get_box_plot_data(x.columns, bp3, x2)
-        all_stats = pd.concat([all_stats, sog_stats], axis=0)
     all_stats.to_csv(f'{folder}/{measure}_stats.csv')
     decimals = 4
 
@@ -123,11 +101,19 @@ def boxplot_measure(data, measure, folder, measure2=None, measure3=None, limit=N
         st2 = round(row2['std'], decimals)
         avg3 = round(row3['average'], decimals)
         st3 = round(row3['std'], decimals)
-        # print(f'$({lbl})$ & ${avg} \pm {st}$ & ${lbl2}$ & ${avg2} \pm {st2}$ & ${lbl3}$ & ${avg3} \pm {st3}$ \\\\')
         print(f'$({lbl})$ & ${avg} \pm {st}$ & ${avg2} \pm {st2}$ & ${avg3} \pm {st3}$ \\\\')
 
 
 def get_box_plot_data(labels, bp, data):
+    """
+    It gets the boxplot and data information and save into a csv file.
+
+    :param labels: the configuration under analysis
+    :param bp: the boxplot information
+    :param data: the results of the configuration under analysis.
+
+    :return: a summary of all the boxplot and data information
+    """
     rows_list = []
 
     for i in range(len(labels)):
@@ -152,7 +138,6 @@ def get_box_plot_data(labels, bp, data):
 
 
 print('Starting all Experiments...')
-dataset_name = 'DCAIS'
 n_samples = 300
 ## Fishing
 vessel_type = [30, 1001, 1002]
@@ -160,14 +145,11 @@ vessel_type = [30, 1001, 1002]
 start_day = datetime(2020, 4, 1)
 end_day = datetime(2020, 4, 30)
 
-# region_limits = [30, 41, -80, -65]
-region_limits = None
-
-dataset = Trajectories(dataset=dataset_name, n_samples=n_samples, vessel_type=vessel_type, time_period=(start_day, end_day), region=region_limits)
-main_folder = f'./results/{dataset_name}/type_{vessel_type}/period_{start_day.date()}_to_{end_day.date()}-{region_limits}/arima_analysis_sog_{n_samples}'
+dataset = Trajectories(dataset='DCAIS', n_samples=n_samples, vessel_type=vessel_type, time_period=(start_day, end_day))
+main_folder = f'./results/DCAIS/type_{vessel_type}/period_{start_day.date()}_to_{end_day.date()}/arima_analysis_sog_{n_samples}'
 
 metric = 'arima'
-dim_set = ['lat', 'lon', 'sog']
+dim_set = ['lat', 'lon']
 
 curr_config = {}
 silhouette = pd.DataFrame()
@@ -187,8 +169,6 @@ for ar_i in [0, 1]:
             curr_config[f'{ar_p}_{ar_i}_{ar_q}'] = pd.read_csv(file_path)
 
 
-col_set = ['AIC', 'MSE']
-
 folder = f'{main_folder}/'
-boxplot_measure(curr_config, 'MSE', measure2='MSE', measure3='MSE', limit=(-0.01, 0.1), folder=folder)
+boxplot_measure(curr_config, 'MSE', measure2='MSE', limit=(-0.01, 0.1), folder=folder)
 

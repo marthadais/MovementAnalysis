@@ -1,3 +1,9 @@
+# This file is part of MovementAnalysis.
+#
+# [1] Ferreira, M. D., Campbell, J. N., & Matwin, S. (2022).
+# A novel machine learning approach to analyzing geospatial vessel patterns using AIS data.
+# GIScience & Remote Sensing, 59(1), 1473-1490.
+#
 from sklearn.cluster import DBSCAN, SpectralClustering, AgglomerativeClustering
 import os, pickle
 import numpy as np
@@ -10,7 +16,8 @@ from scipy.cluster.hierarchy import dendrogram
 
 def my_DBSCAN(data, **args):
     """
-    It generates the DBSCAN clustering
+    It generates the DBSCAN clustering.
+
     :param data: the distance matrix
     :return: the clustering results
     """
@@ -30,7 +37,8 @@ def my_DBSCAN(data, **args):
 
 def my_hierarchical(data, **args):
     """
-    It generates the hierarchical clustering
+    It generates the hierarchical clustering.
+
     :param data: the distance matrix
     :return: the clustering results
     """
@@ -56,7 +64,8 @@ def my_hierarchical(data, **args):
 
 def my_spectral(data, **args):
     """
-    It generates the spectral clustering
+    It generates the spectral clustering.
+
     :param data: the distance matrix
     :return: the clustering results
     """
@@ -64,18 +73,14 @@ def my_spectral(data, **args):
     if 'k' in args.keys():
         k = args['k']
 
-    delta = 1
-    if 'delta' in args.keys():
-        delta = args['delta']
-
     n_eigenvectors = 3
     if 'n_eigenvectors' in args.keys():
         n_eigenvectors = args['n_eigenvectors']
 
     # convert distance to similarity
     data = 1 - data
-    # data = np.exp(- data ** 2 / (2. * delta ** 2))
-    clustering = SpectralClustering(n_clusters=k, n_components=n_eigenvectors, assign_labels="kmeans", affinity='precomputed', random_state=42, n_init=1)
+    clustering = SpectralClustering(n_clusters=k, n_components=n_eigenvectors, assign_labels="kmeans",
+                                    affinity='precomputed', random_state=42, n_init=1)
     clustering.fit(data)
 
     return clustering
@@ -84,6 +89,7 @@ def my_spectral(data, **args):
 def plot_dendrogram(dm, folder):
     """
     It generates the dendrogram for hierarchical clustering.
+
     :param dm: the distance matrix
     :param folder: the folder path to save the image
     """
@@ -107,7 +113,8 @@ def plot_dendrogram(dm, folder):
 
     # Plot the corresponding dendrogram
     plt.figure()
-    dendrogram(linkage_matrix, truncate_mode='lastp', p=25, labels=np.repeat('(1)', linkage_matrix.shape[0]+1), leaf_rotation=90, leaf_font_size=14)
+    dendrogram(linkage_matrix, truncate_mode='lastp', p=25, labels=np.repeat('(1)', linkage_matrix.shape[0]+1),
+               leaf_rotation=90, leaf_font_size=14)
 
     # change the fontsize of the xtick and ytick labels and axes
     plt.rc('xtick', labelsize=15)
@@ -137,6 +144,7 @@ class Clustering:
         """
         It receives the preprocessed DCAIS dataset in dict format.
         It applies the selected model on the trajectories and compute the euclidean distance.
+
         :param ais_data_path: the path were is the dataset
         :param distance_matrix_path: the path were is the distance matrix of the dataset
         :param verbose: if True, it shows the messages (Default: True).
@@ -298,7 +306,8 @@ class Clustering:
             plt.xlabel('Number of clusters')
             plt.ylabel('Silhouette score')
             # plt.title(f'Silhouette Scores for {self.cluster_algorithm}')
-            plt.savefig(f'{self.path}/{self.cluster_algorithm}_{self._linkage}_silhoutte_line_graph.png', bbox_inches='tight')
+            plt.savefig(f'{self.path}/{self.cluster_algorithm}_{self._linkage}_silhoutte_line_graph.png',
+                        bbox_inches='tight')
             plt.close()
 
     def _agg_cluster_labels(self):
